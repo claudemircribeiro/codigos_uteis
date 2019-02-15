@@ -1,0 +1,97 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
+public class Teste {
+	public static void main(String[] args) {
+
+		List<Number> acoesId = new ArrayList<>();
+		String whereClause = "";
+		
+
+		for (int i = 0; i < 2010; i++) {
+			acoesId.add(i);
+		}
+		
+		int resto = acoesId.size()%1000;
+		int iteracoes = acoesId.size()/1000;
+		final Set<List<Number>> inClauses = new HashSet<List<Number>>();
+		int de = 0;
+		int ate = 0;
+		
+		for(int i= 0 ; i < iteracoes; i++) {
+			ate += 1000;
+			inClauses.add(acoesId.subList(de, ate));
+			de = 1000;
+		}
+		
+		inClauses.add(acoesId.subList(ate, ate+resto));
+		
+		
+		
+		
+
+		if (acoesId.size() > 0) {
+
+
+			// Limite do IN
+			if (acoesId.size() > 1000) {
+				
+				int ateOIndice = 0;
+				
+				for(int doIndice = 0; doIndice < acoesId.size();) {
+					
+					if(ateOIndice + 1000 > acoesId.size()) {
+						ateOIndice += acoesId.size()-ateOIndice;
+						
+					} else {
+						ateOIndice += 1000;
+					}
+					
+					inClauses.add(acoesId.subList(doIndice, ateOIndice));
+					doIndice = ateOIndice;
+					
+				}
+				
+				
+
+		
+			} else {
+				inClauses.add(acoesId);
+			}
+
+			whereClause += " AND (";
+
+			boolean addOr = false;
+			for (List<Number> ids : inClauses) {
+
+				if (addOr) {
+					whereClause += " OR ";
+				}
+
+				whereClause += "a.id in (";
+
+				boolean addSeparator = false;
+				for (Number id : ids) {
+					if (addSeparator) {
+						whereClause += ", ";
+					}
+
+					whereClause += id;
+
+					addSeparator = true;
+				}
+
+				whereClause += ")";
+				addOr = true;
+			}
+
+			whereClause += " ) ";
+		} else {
+			whereClause += " AND ( a.id = 0 )";
+		}
+	}
+}
